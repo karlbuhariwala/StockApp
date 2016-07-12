@@ -36,6 +36,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -47,6 +48,9 @@
     <Compile Include="Models\Quote.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Provider\GoogleStock\GoogleProvider.cs" />
+    <Compile Include="Provider\GoogleStock\GoogleStock.cs" />
+    <Compile Include="Provider\GoogleStock\IGoogleProvider.cs" />
     <Compile Include="Provider\ProviderFactory.cs" />
     <Compile Include="Provider\IProvider.cs" />
     <Compile Include="Provider\YahooStock\IYahooProvider.cs" />

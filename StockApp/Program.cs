@@ -1,4 +1,5 @@
 ﻿using RestServiceV1.Providers;
+using StockApp.Provider.GoogleStock;
 using StockApp.Provider.YahooStock;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,9 @@ namespace StockApp
             IYahooProvider provider = (IYahooProvider)ProviderFactory.Instance.CreateProvider<IYahooProvider>();
 
             var quote = provider.GetCurrentQuote("AAPL");
+
+            IGoogleProvider googleProvider = (IGoogleProvider)ProviderFactory.Instance.CreateProvider<IGoogleProvider>();
+            var quote2 = googleProvider.GetCurrentQuote("NSE:AAPL");
         }
     }
 }
