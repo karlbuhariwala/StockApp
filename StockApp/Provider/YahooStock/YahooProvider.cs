@@ -11,16 +11,16 @@ namespace StockApp.Provider.YahooStock
     public class YahooProvider : IYahooProvider
     {
         private const string currentQuoteQuery = @"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(""{0}"")&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
-        Quote IYahooProvider.GetCurrentQuote(string symbol)
+        StockProfile IYahooProvider.GetCurrentQuote(string symbol)
         {
             XDocument document = XDocument.Load(string.Format(currentQuoteQuery, symbol));
             return YahooProvider.Parse(document, symbol);
         }
 
-        private static Quote Parse(XDocument document, string symbol)
+        private static StockProfile Parse(XDocument document, string symbol)
         {
             //// Resource http://www.jarloo.com/get-yahoo-finance-api-data-via-yql/
-            Quote quote = new Quote();
+            StockProfile quote = new StockProfile();
 
             XElement results = document.Root.Element("results");
             XElement q = results.Elements("quote").First(w => w.Attribute("symbol").Value == symbol);

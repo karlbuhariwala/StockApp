@@ -7,13 +7,13 @@ namespace StockApp.Provider.GoogleStock
 {
     public class GoogleProvider : IGoogleProvider
     {
-        private const string QueryFormat = @"http://finance.google.com/finance/info?client=ig&q={0}";
+        private const string QueryFormat = @"http://finance.google.com/finance/info?client=ig&q={0}:{1}";
 
-        Quote IGoogleProvider.GetCurrentQuote(string symbol)
+        StockProfile IGoogleProvider.GetCurrentQuote(string exchange, string symbol)
         {
-            var rawData = QueryHelper.GetQuery<List<GoogleStock>>(string.Format(GoogleProvider.QueryFormat, symbol), 4);
+            var rawData = QueryHelper.GetQuery<List<GoogleStock>>(string.Format(GoogleProvider.QueryFormat, exchange, symbol), 4);
             var stock = rawData.FirstOrDefault();
-            Quote quote = new Quote();
+            StockProfile quote = new StockProfile();
             quote.Symbol = stock.Symbol;
             quote.LastTradePrice = decimal.Parse(stock.CurrentPrice);
 

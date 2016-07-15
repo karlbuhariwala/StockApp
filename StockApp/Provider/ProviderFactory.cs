@@ -44,7 +44,7 @@ namespace RestServiceV1.Providers
         /// <typeparam name="T">Provider interface type</typeparam>
         /// <returns>The instance of the provider</returns>
         /// <exception cref="ApplicationException">No setting for Provider type: + providerType.Name</exception>
-        public IProvider CreateProvider<T>(string providerName = null)
+        public T CreateProvider<T>(string providerName = null)
         {
             var providerType = typeof(T);
             string providerInstanceName = ConfigurationManager.AppSettings[providerType.Name];
@@ -60,7 +60,7 @@ namespace RestServiceV1.Providers
 
             string binaryName = ConfigurationManager.AppSettings["BinaryName"];
             ObjectHandle handle = Activator.CreateInstance(binaryName, providerInstanceName);
-            return (IProvider)handle.Unwrap();
+            return (T)handle.Unwrap();
         }
     }
 }

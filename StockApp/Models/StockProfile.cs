@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockApp.Models
 {
-    public class Quote
+    public class StockProfile
     {
         public string Symbol { get; set; }
 
@@ -15,6 +15,13 @@ namespace StockApp.Models
         public decimal? Bid { get; set; }
 
         public decimal? LastTradePrice { get; set; }
+
+        public DateTime ExDividendDate { get; set; }
+
+        public DateTime EarningCallDate { get; set; }
+
+        public double CurrentVolume { get; set; }
+
         public DateTime LastUpdate { get; internal set; }
     }
 }
