@@ -12,9 +12,9 @@ namespace StockApp.Provider.YahooEarnings
     {
         private const string QueryFormat = @"https://biz.yahoo.com/research/earncal/{0}/{1}.html";
 
-        DateTime IYahooEarningsProvider.GetEarningsCallDate(string symbol)
+        async Task<DateTime> IYahooEarningsProvider.GetEarningsCallDate(string symbol)
         {
-            var rawData = Helper.QueryHelper.GetQuery<string>(string.Format(YahooEarningsProvider.QueryFormat, symbol.Substring(0, 1), symbol));
+            var rawData = await Helper.QueryHelper.GetQuery<string>(string.Format(YahooEarningsProvider.QueryFormat, symbol.Substring(0, 1), symbol));
 
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(rawData);

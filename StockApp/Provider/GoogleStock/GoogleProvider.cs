@@ -2,6 +2,7 @@
 using StockApp.Provider.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace StockApp.Provider.GoogleStock
 {
@@ -9,9 +10,9 @@ namespace StockApp.Provider.GoogleStock
     {
         private const string QueryFormat = @"http://finance.google.com/finance/info?client=ig&q={0}:{1}";
 
-        StockProfile IGoogleProvider.GetCurrentQuote(string exchange, string symbol)
+        async Task<StockProfile> IGoogleProvider.GetCurrentQuote(string exchange, string symbol)
         {
-            var rawData = QueryHelper.GetQuery<List<GoogleStock>>(string.Format(GoogleProvider.QueryFormat, exchange, symbol), 4);
+            var rawData = await QueryHelper.GetQuery<List<GoogleStock>>(string.Format(GoogleProvider.QueryFormat, exchange, symbol), 4);
             var stock = rawData.FirstOrDefault();
             StockProfile quote = new StockProfile();
             quote.Symbol = stock.Symbol;

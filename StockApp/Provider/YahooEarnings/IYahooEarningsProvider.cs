@@ -8,6 +8,6 @@ namespace StockApp.Provider.YahooEarnings
 {
     public interface IYahooEarningsProvider : IProvider
     {
-        DateTime GetEarningsCallDate(string symbol);
+        Task<DateTime> GetEarningsCallDate(string symbol);
     }
 }

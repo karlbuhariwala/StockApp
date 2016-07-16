@@ -11,9 +11,10 @@ namespace StockApp.Provider.YahooStock
     public class YahooProvider : IYahooProvider
     {
         private const string currentQuoteQuery = @"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(""{0}"")&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
-        StockProfile IYahooProvider.GetCurrentQuote(string symbol)
+
+        async Task<StockProfile> IYahooProvider.GetCurrentQuote(string symbol)
         {
-            XDocument document = XDocument.Load(string.Format(currentQuoteQuery, symbol));
+            XDocument document = await Task.Run<XDocument>(() => XDocument.Load(string.Format(currentQuoteQuery, symbol)));
             return YahooProvider.Parse(document, symbol);
         }
 

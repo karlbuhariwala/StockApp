@@ -9,6 +9,6 @@ namespace StockApp.Provider.GoogleFinancePage
 {
     public interface IGoogleFinancePageProvider : IProvider
     {
-        double GetCurrentVolume(string exchange, string symbol);
+        Task<double> GetCurrentVolume(string exchange, string symbol);
     }
 }

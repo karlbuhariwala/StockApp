@@ -9,6 +9,6 @@ namespace StockApp.Provider.GoogleStock
 {
     public interface IGoogleProvider : IProvider
     {
-        StockProfile GetCurrentQuote(string exchange, string symbol);
+        Task<StockProfile> GetCurrentQuote(string exchange, string symbol);
     }
 }

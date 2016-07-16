@@ -69,24 +69,38 @@ namespace StockApp
             //IYahooProvider provider = ProviderFactory.Instance.CreateProvider<IYahooProvider>();
             //var quote = provider.GetCurrentQuote("AAPL");
 
-            if (!Constants.ExchangeMap.ContainsKey(stock.Exchange))
+            try
             {
-                throw new ApplicationException("Exchange key cannot be mapped. Key=" + stock.Exchange);
+                if (!Constants.ExchangeMap.ContainsKey(stock.Exchange))
+                {
+                    throw new ApplicationException("Exchange key cannot be mapped. Key=" + stock.Exchange);
+                }
+
+                IGoogleProvider googleProvider = ProviderFactory.Instance.CreateProvider<IGoogleProvider>();
+                IGoogleFinancePageProvider googlePageProvider = ProviderFactory.Instance.CreateProvider<IGoogleFinancePageProvider>();
+                IDiviDataProvider streetProvider = ProviderFactory.Instance.CreateProvider<IDiviDataProvider>();
+                IYahooEarningsProvider earningProvider = ProviderFactory.Instance.CreateProvider<IYahooEarningsProvider>();
+
+                var currentQuoteTask = googleProvider.GetCurrentQuote(stock.Exchange, stock.Symbol);
+                var currentVolumeTask = googlePageProvider.GetCurrentVolume(Constants.ExchangeMap[stock.Exchange], stock.Symbol);
+                var exDividendDateTask = streetProvider.GetExDividendDate(stock.Symbol);
+                var earningCallDateTask = streetProvider.GetExDividendDate(stock.Symbol);
+
+                Task.WhenAll(currentQuoteTask, currentVolumeTask, exDividendDateTask, earningCallDateTask);
+
+                // Check if all completed
+
+                StockProfile stockProfile = currentQuoteTask.Result;
+                stockProfile.CurrentVolume = currentVolumeTask.Result;
+                stockProfile.ExDividendDate = exDividendDateTask.Result;
+                stockProfile.EarningCallDate = earningCallDateTask.Result;
+
+                return stock.Exchange + ":" + stock.Symbol + "," + stockProfile.LastTradePrice + "," + stockProfile.CurrentVolume + "," + stockProfile.ExDividendDate + "," + stockProfile.EarningCallDate + ",";
             }
-
-            IGoogleProvider googleProvider = ProviderFactory.Instance.CreateProvider<IGoogleProvider>();
-            var stockProfile = googleProvider.GetCurrentQuote(stock.Exchange, stock.Symbol);
-
-            IGoogleFinancePageProvider googlePageProvider = ProviderFactory.Instance.CreateProvider<IGoogleFinancePageProvider>();
-            stockProfile.CurrentVolume = googlePageProvider.GetCurrentVolume(Constants.ExchangeMap[stock.Exchange], stock.Symbol);
-
-            IDiviDataProvider streetProvider = ProviderFactory.Instance.CreateProvider<IDiviDataProvider>();
-            stockProfile.ExDividendDate = streetProvider.GetExDividendDate(stock.Symbol);
-
-            IYahooEarningsProvider earningProvider = ProviderFactory.Instance.CreateProvider<IYahooEarningsProvider>();
-            stockProfile.EarningCallDate = earningProvider.GetEarningsCallDate(stock.Symbol.ToLower());
-
-            return stock.Exchange + ":" + stock.Symbol + "," + stockProfile.LastTradePrice + "," + stockProfile.CurrentVolume + "," + stockProfile.ExDividendDate + "," + stockProfile.EarningCallDate;
+            catch (Exception)
+            {
+                return stock.Exchange + ":" + stock.Symbol + "," + "," + "," + "," + "," + "Error";
+            }
         }
 
         private static void AddStock()

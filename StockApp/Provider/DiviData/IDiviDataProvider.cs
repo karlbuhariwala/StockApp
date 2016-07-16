@@ -8,6 +8,6 @@ namespace StockApp.Provider.DiviData
 {
     public interface IDiviDataProvider : IProvider
     {
-        DateTime GetExDividendDate(string symbol);
+        Task<DateTime> GetExDividendDate(string symbol);
     }
 }

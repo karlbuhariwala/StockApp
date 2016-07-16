@@ -14,9 +14,9 @@ namespace StockApp.Provider.GoogleFinancePage
     {
         private const string QueryFormat = @"https://www.google.com/finance?q={0}%3A{1}";
 
-        double IGoogleFinancePageProvider.GetCurrentVolume(string exchange, string symbol)
+        async Task<double> IGoogleFinancePageProvider.GetCurrentVolume(string exchange, string symbol)
         {
-            var rawData = QueryHelper.GetQuery<string>(string.Format(GoogleFinancePageProvider.QueryFormat, exchange, symbol));
+            var rawData = await QueryHelper.GetQuery<string>(string.Format(GoogleFinancePageProvider.QueryFormat, exchange, symbol));
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(rawData);
             var nodes = document.DocumentNode.SelectNodes("//td[@data-snapfield=\"vol_and_avg\"]");

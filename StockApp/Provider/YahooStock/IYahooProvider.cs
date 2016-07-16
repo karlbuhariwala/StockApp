@@ -9,6 +9,6 @@ namespace StockApp.Provider.YahooStock
 {
     public interface IYahooProvider : IProvider
     {
-        StockProfile GetCurrentQuote(string symbol);
+        Task<StockProfile> GetCurrentQuote(string symbol);
     }
 }

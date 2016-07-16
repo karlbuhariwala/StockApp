@@ -12,9 +12,9 @@ namespace StockApp.Provider.DiviData
     {
         private const string QueryFormat = @"https://dividata.com/stock/{0}";
 
-        DateTime IDiviDataProvider.GetExDividendDate(string symbol)
+        async Task<DateTime> IDiviDataProvider.GetExDividendDate(string symbol)
         {
-            string rawData = QueryHelper.GetQuery<string>(string.Format(DiviDataProvider.QueryFormat, symbol));
+            string rawData = await QueryHelper.GetQuery<string>(string.Format(DiviDataProvider.QueryFormat, symbol));
             if (rawData == null)
             {
                 return new DateTime();

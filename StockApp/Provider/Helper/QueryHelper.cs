@@ -2,19 +2,20 @@
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
+using System.Threading.Tasks;
 
 namespace StockApp.Provider.Helper
 {
     public static class QueryHelper
     {
-        public static T GetQuery<T>(string query, int bytesToSkip = 0)
+        public async static Task<T> GetQuery<T>(string query, int bytesToSkip = 0)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(query);
             request.Method = "GET";
 
             try
             {
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
                 {
                     using (Stream responseStream = response.GetResponseStream())
                     {
