@@ -59,20 +59,22 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\GoogleFinancePage\GoogleFinancePageProvider.cs" />
-    <Compile Include="Provider\GoogleFinancePage\IGoogleFinancePageProvider.cs" />
+    <Compile Include="Provider\CommonInterfaces\ICurrentVolumeProvider.cs" />
     <Compile Include="Provider\GoogleStock\GoogleProvider.cs" />
     <Compile Include="Provider\GoogleStock\GoogleStock.cs" />
     <Compile Include="Provider\GoogleStock\IGoogleProvider.cs" />
     <Compile Include="Provider\Helper\QueryHelper.cs" />
+    <Compile Include="Provider\NasdaqDividend\NasdaqDividendDateProvider.cs" />
     <Compile Include="Provider\ProviderFactory.cs" />
     <Compile Include="Provider\IProvider.cs" />
-    <Compile Include="Provider\DiviData\IDiviDataProvider.cs" />
+    <Compile Include="Provider\CommonInterfaces\IExDividendDateProvider.cs" />
     <Compile Include="Provider\DiviData\DiviDataProvider.cs" />
-    <Compile Include="Provider\YahooEarnings\IYahooEarningsProvider.cs" />
+    <Compile Include="Provider\CommonInterfaces\IEarningsDateProvider.cs" />
     <Compile Include="Provider\YahooEarnings\YahooEarningsProvider.cs" />
     <Compile Include="Provider\YahooStock\IYahooProvider.cs" />
     <Compile Include="Provider\YahooStock\YahooProvider.cs" />
     <Compile Include="Utility\Constants.cs" />
+    <Compile Include="Utility\Retry.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

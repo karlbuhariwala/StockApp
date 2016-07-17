@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StockApp.Provider.YahooEarnings
+namespace StockApp.Provider
 {
-    public interface IYahooEarningsProvider : IProvider
+    public interface IEarningsDateProvider : IProvider
     {
         Task<DateTime> GetEarningsCallDate(string symbol);
     }

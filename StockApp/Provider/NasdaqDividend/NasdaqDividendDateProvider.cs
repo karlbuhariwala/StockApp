@@ -6,15 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StockApp.Provider.DiviData
+namespace StockApp.Provider.NasdaqDividend
 {
-    public class DiviDataProvider : IExDividendDateProvider
+    public class NasdaqDividendDateProvider : IExDividendDateProvider
     {
-        private const string QueryFormat = @"https://dividata.com/stock/{0}";
+        private const string QueryFormat = "http://www.nasdaq.com/symbol/{0}/dividend-history";
 
         async Task<DateTime> IExDividendDateProvider.GetExDividendDate(string symbol)
         {
-            string rawData = await QueryHelper.GetQuery<string>(string.Format(DiviDataProvider.QueryFormat, symbol));
+            string rawData = await QueryHelper.GetQuery<string>(string.Format(NasdaqDividendDateProvider.QueryFormat, symbol));
             if (rawData == null)
             {
                 return new DateTime();
@@ -22,18 +22,14 @@ namespace StockApp.Provider.DiviData
 
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(rawData);
-            var nodes = document.DocumentNode.SelectNodes("//abbr[@title=\"Stock must be purchased before this date in order to receive current dividend or stock split.\"]");
+            var nodes = document.DocumentNode.SelectNodes("//span[@id=\"quotes_content_left_dividendhistoryGrid_exdate_0\"]");
             if (nodes.Count != 1)
-            {
-                throw new ApplicationException("There are not exactly 1 node");
-            }
-
-            var node = nodes.FirstOrDefault().NextSibling;
-            string exDividendDate = node.InnerHtml;
-            if (exDividendDate == "N/A")
             {
                 return new DateTime();
             }
+
+            var node = nodes.FirstOrDefault();
+            string exDividendDate = node.InnerHtml;
 
             DateTime dateToReturn;
             if (!DateTime.TryParse(exDividendDate, out dateToReturn))

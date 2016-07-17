@@ -8,11 +8,11 @@ using System.Web;
 
 namespace StockApp.Provider.YahooEarnings
 {
-    public class YahooEarningsProvider : IYahooEarningsProvider
+    public class YahooEarningsProvider : IEarningsDateProvider
     {
         private const string QueryFormat = @"https://biz.yahoo.com/research/earncal/{0}/{1}.html";
 
-        async Task<DateTime> IYahooEarningsProvider.GetEarningsCallDate(string symbol)
+        async Task<DateTime> IEarningsDateProvider.GetEarningsCallDate(string symbol)
         {
             var rawData = await Helper.QueryHelper.GetQuery<string>(string.Format(YahooEarningsProvider.QueryFormat, symbol.Substring(0, 1), symbol));
 

@@ -1,5 +1,6 @@
 ﻿using StockApp.Models;
 using StockApp.Provider.Helper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +18,9 @@ namespace StockApp.Provider.GoogleStock
             StockProfile quote = new StockProfile();
             quote.Symbol = stock.Symbol;
             quote.LastTradePrice = decimal.Parse(stock.CurrentPrice);
+            quote.ChangePercentage = double.Parse(stock.ChangePercentage);
 
+            quote.LastUpdate = DateTime.Now;
             return quote;
         }
     }

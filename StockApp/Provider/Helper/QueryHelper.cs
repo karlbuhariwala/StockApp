@@ -38,9 +38,15 @@ namespace StockApp.Provider.Helper
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return default(T);
+                if (ex is WebException && (int)((ex as WebException).Response as HttpWebResponse).StatusCode == 429)
+                {
+
+                }
+                Console.WriteLine("Exception " + query);
+
+                throw new ApplicationException("Exception with query: " + query, ex);
             }
         }
     }

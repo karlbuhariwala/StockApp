@@ -16,6 +16,8 @@ namespace StockApp.Models
 
         public decimal? LastTradePrice { get; set; }
 
+        public double ChangePercentage { get; set; }
+
         public DateTime ExDividendDate { get; set; }
 
         public DateTime EarningCallDate { get; set; }

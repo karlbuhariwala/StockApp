@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StockApp.Provider.DiviData
+namespace StockApp.Provider
 {
-    public interface IDiviDataProvider : IProvider
+    public interface IExDividendDateProvider : IProvider
     {
         Task<DateTime> GetExDividendDate(string symbol);
     }

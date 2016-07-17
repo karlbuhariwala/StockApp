@@ -15,5 +15,8 @@ namespace StockApp.Provider.GoogleStock
 
         [DataMember(Name = "l_fix")]
         public string CurrentPrice { get; set; }
+
+        [DataMember(Name = "cp_fix")]
+        public string ChangePercentage { get; set; }
     }
 }

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StockApp.Provider.GoogleFinancePage
+namespace StockApp.Provider
 {
-    public interface IGoogleFinancePageProvider : IProvider
+    public interface ICurrentVolumeProvider : IProvider
     {
         Task<double> GetCurrentVolume(string exchange, string symbol);
     }

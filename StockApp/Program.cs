@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using RestServiceV1.Providers;
 using StockApp.Models;
+using StockApp.Provider;
 using StockApp.Provider.DiviData;
 using StockApp.Provider.GoogleFinancePage;
 using StockApp.Provider.GoogleStock;
@@ -49,11 +50,20 @@ namespace StockApp
             string jsonText = File.ReadAllText(Constants.StockIdentityFileName);
             var listOfStock = JsonConvert.DeserializeObject<List<StockIdentityContainer>>(jsonText);
 
+            List<Task<string>> listOfTasks = new List<Task<string>>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("Name,LastTradePrice,CurrentVolume,ExDividendDate,EarningDate" + Environment.NewLine);
+            sb.Append("Name,LastTradePrice,ChangePercentage,CurrentVolume,ExDividendDate,EarningDate,LastUpdated,Comment" + Environment.NewLine);
             foreach (var stock in listOfStock)
             {
-                sb.Append(Program.GetStockInfo(stock) + Environment.NewLine);
+                listOfTasks.Add(Task.Run<string>(() => Program.GetStockInfo(stock)));
+            }
+
+            Task.WaitAll(Task.WhenAll(listOfTasks));
+
+            foreach (var task in listOfTasks)
+            {
+                // Check if completed
+                sb.Append(task.Result + Environment.NewLine);
             }
 
             File.Create(Constants.StockAnalysisFileName).Close();
@@ -77,14 +87,14 @@ namespace StockApp
                 }
 
                 IGoogleProvider googleProvider = ProviderFactory.Instance.CreateProvider<IGoogleProvider>();
-                IGoogleFinancePageProvider googlePageProvider = ProviderFactory.Instance.CreateProvider<IGoogleFinancePageProvider>();
-                IDiviDataProvider streetProvider = ProviderFactory.Instance.CreateProvider<IDiviDataProvider>();
-                IYahooEarningsProvider earningProvider = ProviderFactory.Instance.CreateProvider<IYahooEarningsProvider>();
+                ICurrentVolumeProvider googlePageProvider = ProviderFactory.Instance.CreateProvider<ICurrentVolumeProvider>();
+                IExDividendDateProvider exDividendDateProvider = ProviderFactory.Instance.CreateProvider<IExDividendDateProvider>();
+                IEarningsDateProvider earningProvider = ProviderFactory.Instance.CreateProvider<IEarningsDateProvider>();
 
-                var currentQuoteTask = googleProvider.GetCurrentQuote(stock.Exchange, stock.Symbol);
-                var currentVolumeTask = googlePageProvider.GetCurrentVolume(Constants.ExchangeMap[stock.Exchange], stock.Symbol);
-                var exDividendDateTask = streetProvider.GetExDividendDate(stock.Symbol);
-                var earningCallDateTask = streetProvider.GetExDividendDate(stock.Symbol);
+                var currentQuoteTask = Retry.Do<StockProfile>(() => googleProvider.GetCurrentQuote(stock.Exchange, stock.Symbol), TimeSpan.FromSeconds(2));
+                var currentVolumeTask = Retry.Do<double>(() => googlePageProvider.GetCurrentVolume(Constants.ExchangeMap[stock.Exchange], stock.Symbol), TimeSpan.FromSeconds(2));
+                var exDividendDateTask = Retry.Do<DateTime>(() => exDividendDateProvider.GetExDividendDate(stock.Symbol.ToLower()), TimeSpan.FromSeconds(2));
+                var earningCallDateTask = Retry.Do<DateTime>(() => earningProvider.GetEarningsCallDate(stock.Symbol.ToLower()), TimeSpan.FromSeconds(2));
 
                 Task.WhenAll(currentQuoteTask, currentVolumeTask, exDividendDateTask, earningCallDateTask);
 
@@ -95,11 +105,23 @@ namespace StockApp
                 stockProfile.ExDividendDate = exDividendDateTask.Result;
                 stockProfile.EarningCallDate = earningCallDateTask.Result;
 
-                return stock.Exchange + ":" + stock.Symbol + "," + stockProfile.LastTradePrice + "," + stockProfile.CurrentVolume + "," + stockProfile.ExDividendDate + "," + stockProfile.EarningCallDate + ",";
+                List<string> listToPrint = new List<string>()
+                {
+                    stock.Exchange + ":" + stock.Symbol,
+                    stockProfile.LastTradePrice.ToString(),
+                    stockProfile.ChangePercentage.ToString(),
+                    stockProfile.CurrentVolume.ToString(),
+                    stockProfile.ExDividendDate.ToString(),
+                    stockProfile.EarningCallDate.ToString(),
+                    stockProfile.LastUpdate.ToString(),
+                    string.Empty, // Comment
+                };
+
+                return string.Join(",", listToPrint);
             }
             catch (Exception)
             {
-                return stock.Exchange + ":" + stock.Symbol + "," + "," + "," + "," + "," + "Error";
+                return stock.Exchange + ":" + stock.Symbol + "," + "Error";
             }
         }
 

@@ -10,11 +10,11 @@ using HtmlAgilityPack;
 
 namespace StockApp.Provider.GoogleFinancePage
 {
-    public class GoogleFinancePageProvider : IGoogleFinancePageProvider
+    public class GoogleFinancePageProvider : ICurrentVolumeProvider
     {
         private const string QueryFormat = @"https://www.google.com/finance?q={0}%3A{1}";
 
-        async Task<double> IGoogleFinancePageProvider.GetCurrentVolume(string exchange, string symbol)
+        async Task<double> ICurrentVolumeProvider.GetCurrentVolume(string exchange, string symbol)
         {
             var rawData = await QueryHelper.GetQuery<string>(string.Format(GoogleFinancePageProvider.QueryFormat, exchange, symbol));
             HtmlDocument document = new HtmlDocument();
