@@ -19,16 +19,32 @@ namespace StockApp.ServiceLayer
 
         private readonly StockScoreGenerator stockScoreGenerator;
 
+        private TimeZoneInfo est = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+
         public StockInformationCollector(LiveStockInfoCollector liveStockInfoCollector, StockScoreGenerator stockScoreGenerator)
         {
             this.liveStockInfoCollector = liveStockInfoCollector;
             this.stockScoreGenerator = stockScoreGenerator;
         }
 
-        public async Task DoWork()
+        public async Task DoWork(bool force = false)
         {
-            await this.liveStockInfoCollector.RunPlugin();
-            await this.stockScoreGenerator.RunPlugin();
+            while (true)
+            {
+                var easternNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, est);
+                if ((TimeSpan.FromHours(9) < easternNow.TimeOfDay && easternNow.TimeOfDay < TimeSpan.FromHours(16)) || force)
+                {
+                    Console.WriteLine(DateTime.UtcNow.ToString() + ": Running now...");
+                    await this.liveStockInfoCollector.RunPlugin();
+                    Console.WriteLine(DateTime.UtcNow.ToString() + ": Completed running now...");
+                }
+
+                Console.WriteLine(DateTime.UtcNow.ToString() + ": Sleeping now...");
+                await Task.Delay(5 * 60 * 1000);
+                Console.WriteLine(DateTime.UtcNow.ToString() + ": Awake now...");
+            }
+
+            ////await this.stockScoreGenerator.RunPlugin();
         }
     }
 }

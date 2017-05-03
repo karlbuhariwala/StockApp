@@ -38,8 +38,9 @@ namespace StockApp
                         Program.RunAnalysis();
                         break;
                     case "CollectInfo":
+                        bool force = args.FirstOrDefault(x => x.Equals("force", StringComparison.OrdinalIgnoreCase)) != null;
                         StockInformationCollector collectStockInfo = kernel.Get<StockInformationCollector>();
-                        collectStockInfo.DoWork().Wait();
+                        collectStockInfo.DoWork(force).Wait();
                         break;
                     case "/?":
                     case "-?":

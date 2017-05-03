@@ -110,8 +110,9 @@ namespace StockApp.Provider.SqlProvider
                 myCommand.Connection.Open();
                 await myCommand.ExecuteNonQueryAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
             }
         }
     }
