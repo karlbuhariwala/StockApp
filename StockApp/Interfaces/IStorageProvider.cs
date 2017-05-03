@@ -9,6 +9,8 @@ namespace StockApp.Interfaces
 
     public interface IStorageProvider
     {
-        Task<string> SaveStockInfo(StockInfo stockInfo);
+        Task SaveStockInfo(StockInfo stockInfo);
+
+        Task<StockInfo> GetLastStock(string symbol);
     }
 }

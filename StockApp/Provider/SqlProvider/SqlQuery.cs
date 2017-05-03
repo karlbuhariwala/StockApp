@@ -12,6 +12,7 @@ namespace StockApp.Provider.SqlProvider
     , Timestamp
     , Price
     , Volume
+    , ChangePercentage
     , Deleted
 )
 VALUES
@@ -20,7 +21,22 @@ VALUES
         , @timestamp
         , @price
         , @volume
+        , @changePercentage
         , 0
     )";
+
+        public const string GetLastDatapoint = @"SELECT TOP 1
+    Symbol
+    , Timestamp
+    , Price
+    , Volume
+    , ChangePercentage
+FROM
+    [dbo].[StockInfoRaw]
+WHERE
+    Symbol = 'MSFT'
+    AND Deleted = 0
+ORDER BY
+    Timestamp desc";
     }
 }

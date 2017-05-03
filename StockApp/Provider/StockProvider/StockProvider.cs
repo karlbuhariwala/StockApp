@@ -7,7 +7,6 @@ namespace StockApp.Provider.StockProvider
     using Interfaces;
     using StockApp.Models;
     using StockApp.Provider.GoogleStock;
-    using StockApp.Providers;
     using System.Threading.Tasks;
 
     public class StockProvider : IStockProvider

@@ -88,7 +88,10 @@
     <Compile Include="Provider\YahooEarnings\YahooEarningsProvider.cs" />
     <Compile Include="Provider\YahooStock\IYahooProvider.cs" />
     <Compile Include="Provider\YahooStock\YahooProvider.cs" />
-    <Compile Include="ServiceLayer\StockInformationCollector.cs" />
+    <Compile Include="ServiceLayer\LiveStockInfoCollector.cs" />
+    <Compile Include="ServiceLayer\StockListGenerator.cs" />
+    <Compile Include="ServiceLayer\StockScoreGenerator.cs" />
+    <Compile Include="Workflow\StockInformationCollector.cs" />
     <Compile Include="Utility\Constants.cs" />
     <Compile Include="Utility\Ninject\Dependencies.cs" />
     <Compile Include="Utility\Retry.cs" />

@@ -11,6 +11,28 @@ namespace StockApp.Utility
 
     public static class Retry
     {
+       public static async Task Do(Func<Task> action, TimeSpan retryInterval, int retryCount = 3)
+        {
+            var exceptions = new List<Exception>();
+            for (int retry = 0; retry < retryCount; retry++)
+            {
+                try
+                {
+                    if (retry > 0)
+                    {
+                        Thread.Sleep(retryInterval);
+                    }
+
+                    await action();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+        }
+
        public static async Task<T> Do<T>(Func<Task<T>> action, TimeSpan retryInterval, int retryCount = 3)
         {
             var exceptions = new List<Exception>();

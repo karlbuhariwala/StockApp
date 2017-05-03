@@ -28,7 +28,11 @@ namespace StockApp.Utility.Ninject
             this.Bind<IExDividendDateProvider>().To<DiviDataProvider>();
             this.Bind<IEarningsDateProvider>().To<YahooEarningsProvider>();
 
-            // ServiceLayer
+            // Service layer
+            this.Bind<StockListGenerator>().To<StockListGenerator>().InSingletonScope();
+            this.Bind<LiveStockInfoCollector>().To<LiveStockInfoCollector>();
+
+            // WorkFlow layer
             this.Bind<StockInformationCollector>().To<StockInformationCollector>();
         }
     }

@@ -5,8 +5,13 @@
     [Timestamp] DATETIMEOFFSET NOT NULL,
 	[Price] REAL NOT NULL, 
     [Volume] INT NOT NULL, 
+    [ChangePercentage] REAL NOT NULL, 
     [Deleted] BIT NOT NULL,
 )
 
 CREATE INDEX Symbol
 ON [dbo].[StockInfoRaw] ([Symbol]);
+
+-- DROP TABLE [dbo].[StockInfoRaw]
+
+-- SELECT * FROM [dbo].[StockInfoRaw]
