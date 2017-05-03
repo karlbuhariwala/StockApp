@@ -1,13 +1,16 @@
-﻿using HtmlAgilityPack;
-using StockApp.Provider.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright = Karl Buhariwala
+// ServiceMe App
+// FileName = NasdaqDividendDateProvider.cs
 
 namespace StockApp.Provider.NasdaqDividend
 {
+    using HtmlAgilityPack;
+    using StockApp.Interfaces;
+    using StockApp.Provider.Helper;
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+
     public class NasdaqDividendDateProvider : IExDividendDateProvider
     {
         private const string QueryFormat = "http://www.nasdaq.com/symbol/{0}/dividend-history";

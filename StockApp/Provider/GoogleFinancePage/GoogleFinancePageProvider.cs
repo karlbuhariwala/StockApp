@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StockApp.Models;
-using StockApp.Provider.Helper;
-using System.Xml.Linq;
-using HtmlAgilityPack;
+﻿// Copyright = Karl Buhariwala
+// ServiceMe App
+// FileName = GoogleFinancePageProvider.cs
 
 namespace StockApp.Provider.GoogleFinancePage
 {
+    using HtmlAgilityPack;
+    using StockApp.Interfaces;
+    using StockApp.Provider.Helper;
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+
     public class GoogleFinancePageProvider : ICurrentVolumeProvider
     {
         private const string QueryFormat = @"https://www.google.com/finance?q={0}%3A{1}";

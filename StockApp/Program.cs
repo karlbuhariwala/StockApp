@@ -1,26 +1,32 @@
-﻿using Newtonsoft.Json;
-using RestServiceV1.Providers;
-using StockApp.Models;
-using StockApp.Provider;
-using StockApp.Provider.DiviData;
-using StockApp.Provider.GoogleFinancePage;
-using StockApp.Provider.GoogleStock;
-using StockApp.Provider.YahooEarnings;
-using StockApp.Provider.YahooStock;
-using StockApp.Utility;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright = Karl Buhariwala
+// ServiceMe App
+// FileName = Program.cs
 
 namespace StockApp
 {
-    class Program
+    using Newtonsoft.Json;
+    using Ninject;
+    using StockApp.Interfaces;
+    using StockApp.Models;
+    using StockApp.Provider.GoogleStock;
+    using StockApp.Provider.YahooStock;
+    using StockApp.ServiceLayer;
+    using StockApp.Utility;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    public class Program
     {
+        private static IKernel kernel;
+
         static void Main(string[] args)
         {
+            kernel = new StandardKernel(new StockApp.Utility.Ninject.Dependencies());
+
             if (args.Any())
             {
                 switch (args[0])
@@ -30,6 +36,10 @@ namespace StockApp
                         break;
                     case "RunAnalysis":
                         Program.RunAnalysis();
+                        break;
+                    case "CollectInfo":
+                        StockInformationCollector collectStockInfo = kernel.Get<StockInformationCollector>();
+                        collectStockInfo.DoWork().Wait();
                         break;
                     case "/?":
                     case "-?":
@@ -50,21 +60,30 @@ namespace StockApp
             string jsonText = File.ReadAllText(Constants.StockIdentityFileName);
             var listOfStock = JsonConvert.DeserializeObject<List<StockIdentityContainer>>(jsonText);
 
-            List<Task<string>> listOfTasks = new List<Task<string>>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("Name,LastTradePrice,ChangePercentage,CurrentVolume,ExDividendDate,EarningDate,LastUpdated,Comment" + Environment.NewLine);
-            foreach (var stock in listOfStock)
+            sb.Append("Name,LastTradePrice,ChangePercentage,CurrentVolume,ExDividendDate,DividendYield,EarningDate,LastUpdated,Comment" + Environment.NewLine);
+
+            List<string> listOfResults = new List<string>();
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = 3 };
+            Parallel.ForEach(listOfStock, options, (stock) => { listOfResults.Add(Program.GetStockInfo(stock)); });
+            
+            foreach (var result in listOfResults)
             {
-                listOfTasks.Add(Task.Run<string>(() => Program.GetStockInfo(stock)));
+                sb.Append(result + Environment.NewLine);
             }
 
-            Task.WaitAll(Task.WhenAll(listOfTasks));
+            //List<Task<string>> listOfTasks = new List<Task<string>>();
+            //foreach (var stock in listOfStock)
+            //{
+            //    listOfTasks.Add(Task.Run<string>(() => Program.GetStockInfo(stock)));
+            //}
 
-            foreach (var task in listOfTasks)
-            {
-                // Check if completed
-                sb.Append(task.Result + Environment.NewLine);
-            }
+            //Task.WaitAll(Task.WhenAll(listOfTasks));
+            //foreach (var task in listOfTasks)
+            //{
+            //    // Check if completed
+            //    sb.Append(task.Result + Environment.NewLine);
+            //}
 
             File.Create(Constants.StockAnalysisFileName).Close();
             File.AppendAllText(Constants.StockAnalysisFileName, sb.ToString());
@@ -76,7 +95,7 @@ namespace StockApp
             //string exchange = "NSE";
             //string exchangeAlt = "NASDAQ";
 
-            //IYahooProvider provider = ProviderFactory.Instance.CreateProvider<IYahooProvider>();
+            //IYahooProvider provider = kernel.Get<IYahooProvider>();
             //var quote = provider.GetCurrentQuote("AAPL");
 
             try
@@ -86,12 +105,14 @@ namespace StockApp
                     throw new ApplicationException("Exchange key cannot be mapped. Key=" + stock.Exchange);
                 }
 
-                IGoogleProvider googleProvider = ProviderFactory.Instance.CreateProvider<IGoogleProvider>();
-                ICurrentVolumeProvider googlePageProvider = ProviderFactory.Instance.CreateProvider<ICurrentVolumeProvider>();
-                IExDividendDateProvider exDividendDateProvider = ProviderFactory.Instance.CreateProvider<IExDividendDateProvider>();
-                IEarningsDateProvider earningProvider = ProviderFactory.Instance.CreateProvider<IEarningsDateProvider>();
+                IGoogleProvider googleProvider = kernel.Get<IGoogleProvider>();
+                IYahooProvider yahooProvider = kernel.Get<IYahooProvider>();
+                ICurrentVolumeProvider googlePageProvider = kernel.Get<ICurrentVolumeProvider>();
+                IExDividendDateProvider exDividendDateProvider = kernel.Get<IExDividendDateProvider>();
+                IEarningsDateProvider earningProvider = kernel.Get<IEarningsDateProvider>();
 
-                var currentQuoteTask = Retry.Do<StockProfile>(() => googleProvider.GetCurrentQuote(stock.Exchange, stock.Symbol), TimeSpan.FromSeconds(2));
+                var currentQuoteTask = Retry.Do<StockInfo>(() => googleProvider.GetCurrentQuote(stock.Exchange, stock.Symbol), TimeSpan.FromSeconds(2));
+                var currentDividendYieldTask = Retry.Do<StockInfo>(() => yahooProvider.GetCurrentQuote(stock.Symbol), TimeSpan.FromSeconds(2));
                 var currentVolumeTask = Retry.Do<double>(() => googlePageProvider.GetCurrentVolume(Constants.ExchangeMap[stock.Exchange], stock.Symbol), TimeSpan.FromSeconds(2));
                 var exDividendDateTask = Retry.Do<DateTime>(() => exDividendDateProvider.GetExDividendDate(stock.Symbol.ToLower()), TimeSpan.FromSeconds(2));
                 var earningCallDateTask = Retry.Do<DateTime>(() => earningProvider.GetEarningsCallDate(stock.Symbol.ToLower()), TimeSpan.FromSeconds(2));
@@ -100,7 +121,8 @@ namespace StockApp
 
                 // Check if all completed
 
-                StockProfile stockProfile = currentQuoteTask.Result;
+                StockInfo stockProfile = currentQuoteTask.Result;
+                stockProfile.DividendYield = currentDividendYieldTask.Result.DividendYield;
                 stockProfile.CurrentVolume = currentVolumeTask.Result;
                 stockProfile.ExDividendDate = exDividendDateTask.Result;
                 stockProfile.EarningCallDate = earningCallDateTask.Result;
@@ -112,6 +134,7 @@ namespace StockApp
                     stockProfile.ChangePercentage.ToString(),
                     stockProfile.CurrentVolume.ToString(),
                     stockProfile.ExDividendDate.ToString(),
+                    stockProfile.DividendYield.ToString(),
                     stockProfile.EarningCallDate.ToString(),
                     stockProfile.LastUpdate.ToString(),
                     string.Empty, // Comment

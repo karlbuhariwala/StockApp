@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.4\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.4\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -12,6 +14,8 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -37,8 +41,16 @@
       <HintPath>..\packages\HtmlAgilityPack.1.4.9.4\lib\Net45\HtmlAgilityPack.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.4\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -55,32 +67,49 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\StockIdentityContainer.cs" />
-    <Compile Include="Models\StockProfile.cs" />
+    <Compile Include="Models\StockInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\GoogleFinancePage\GoogleFinancePageProvider.cs" />
-    <Compile Include="Provider\CommonInterfaces\ICurrentVolumeProvider.cs" />
+    <Compile Include="Interfaces\ICurrentVolumeProvider.cs" />
     <Compile Include="Provider\GoogleStock\GoogleProvider.cs" />
-    <Compile Include="Provider\GoogleStock\GoogleStock.cs" />
+    <Compile Include="Provider\GoogleStock\DataModel\GoogleStock.cs" />
     <Compile Include="Provider\GoogleStock\IGoogleProvider.cs" />
     <Compile Include="Provider\Helper\QueryHelper.cs" />
     <Compile Include="Provider\NasdaqDividend\NasdaqDividendDateProvider.cs" />
-    <Compile Include="Provider\ProviderFactory.cs" />
-    <Compile Include="Provider\IProvider.cs" />
-    <Compile Include="Provider\CommonInterfaces\IExDividendDateProvider.cs" />
+    <Compile Include="Interfaces\IExDividendDateProvider.cs" />
     <Compile Include="Provider\DiviData\DiviDataProvider.cs" />
-    <Compile Include="Provider\CommonInterfaces\IEarningsDateProvider.cs" />
+    <Compile Include="Interfaces\IEarningsDateProvider.cs" />
+    <Compile Include="Interfaces\IStorageProvider.cs" />
+    <Compile Include="Provider\SqlProvider\SqlProvider.cs" />
+    <Compile Include="Provider\SqlProvider\SqlQuery.cs" />
+    <Compile Include="Interfaces\IStockProvider.cs" />
+    <Compile Include="Provider\StockProvider\StockProvider.cs" />
     <Compile Include="Provider\YahooEarnings\YahooEarningsProvider.cs" />
     <Compile Include="Provider\YahooStock\IYahooProvider.cs" />
     <Compile Include="Provider\YahooStock\YahooProvider.cs" />
+    <Compile Include="ServiceLayer\StockInformationCollector.cs" />
     <Compile Include="Utility\Constants.cs" />
+    <Compile Include="Utility\Ninject\Dependencies.cs" />
     <Compile Include="Utility\Retry.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Provider\SqlProvider\SqlScripts\Create-StockInfoRaw.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.4\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.4\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

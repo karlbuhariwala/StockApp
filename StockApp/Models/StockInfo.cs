@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright = Karl Buhariwala
+// ServiceMe App
+// FileName = StockInfo.cs
 
 namespace StockApp.Models
 {
-    public class StockProfile
+    using System;
+
+    public class StockInfo
     {
+        public string Exchange { get; set; }
+
         public string Symbol { get; set; }
 
         public decimal? Ask { get; set; }
@@ -17,6 +19,8 @@ namespace StockApp.Models
         public decimal? LastTradePrice { get; set; }
 
         public double ChangePercentage { get; set; }
+
+        public decimal? DividendYield { get; set; }
 
         public DateTime ExDividendDate { get; set; }
 

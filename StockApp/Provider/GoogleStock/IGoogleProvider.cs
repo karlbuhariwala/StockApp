@@ -1,14 +1,14 @@
-﻿using StockApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright = Karl Buhariwala
+// ServiceMe App
+// FileName = IGoogleProvider.cs
 
 namespace StockApp.Provider.GoogleStock
 {
-    public interface IGoogleProvider : IProvider
+    using StockApp.Models;
+    using System.Threading.Tasks;
+
+    public interface IGoogleProvider
     {
-        Task<StockProfile> GetCurrentQuote(string exchange, string symbol);
+        Task<StockInfo> GetCurrentQuote(string exchange, string symbol);
     }
 }

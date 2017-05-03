@@ -1,14 +1,14 @@
-﻿using StockApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright = Karl Buhariwala
+// ServiceMe App
+// FileName = IYahooProvider.cs
 
 namespace StockApp.Provider.YahooStock
 {
-    public interface IYahooProvider : IProvider
+    using StockApp.Models;
+    using System.Threading.Tasks;
+
+    public interface IYahooProvider
     {
-        Task<StockProfile> GetCurrentQuote(string symbol);
+        Task<StockInfo> GetCurrentQuote(string symbol);
     }
 }

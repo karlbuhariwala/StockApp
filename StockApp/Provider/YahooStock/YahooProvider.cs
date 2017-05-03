@@ -1,33 +1,36 @@
-﻿using StockApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿// Copyright = Karl Buhariwala
+// ServiceMe App
+// FileName = YahooProvider.cs
 
 namespace StockApp.Provider.YahooStock
 {
+    using StockApp.Models;
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+
     public class YahooProvider : IYahooProvider
     {
         private const string currentQuoteQuery = @"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(""{0}"")&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
 
-        async Task<StockProfile> IYahooProvider.GetCurrentQuote(string symbol)
+        async Task<StockInfo> IYahooProvider.GetCurrentQuote(string symbol)
         {
             XDocument document = await Task.Run<XDocument>(() => XDocument.Load(string.Format(currentQuoteQuery, symbol)));
             return YahooProvider.Parse(document, symbol);
         }
 
-        private static StockProfile Parse(XDocument document, string symbol)
+        private static StockInfo Parse(XDocument document, string symbol)
         {
             //// Resource http://www.jarloo.com/get-yahoo-finance-api-data-via-yql/
-            StockProfile quote = new StockProfile();
+            StockInfo quote = new StockInfo();
 
             XElement results = document.Root.Element("results");
             XElement q = results.Elements("quote").First(w => w.Attribute("symbol").Value == symbol);
 
             quote.Ask = YahooProvider.GetDecimal(q.Element("Ask").Value);
             quote.Bid = YahooProvider.GetDecimal(q.Element("Bid").Value);
+            quote.DividendYield = YahooProvider.GetDecimal(q.Element("DividendYield").Value);
             //quote.AverageDailyVolume = GetDecimal(q.Element("AverageDailyVolume").Value);
             //quote.BookValue = GetDecimal(q.Element("BookValue").Value);
             //quote.Change = GetDecimal(q.Element("Change").Value);

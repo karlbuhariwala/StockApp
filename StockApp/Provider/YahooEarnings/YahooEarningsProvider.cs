@@ -1,13 +1,16 @@
-﻿using HtmlAgilityPack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
+﻿// Copyright = Karl Buhariwala
+// ServiceMe App
+// FileName = YahooEarningsProvider.cs
 
 namespace StockApp.Provider.YahooEarnings
 {
+    using HtmlAgilityPack;
+    using StockApp.Interfaces;
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Web;
+
     public class YahooEarningsProvider : IEarningsDateProvider
     {
         private const string QueryFormat = @"https://biz.yahoo.com/research/earncal/{0}/{1}.html";

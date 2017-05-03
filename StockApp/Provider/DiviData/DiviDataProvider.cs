@@ -1,13 +1,16 @@
-﻿using HtmlAgilityPack;
-using StockApp.Provider.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright = Karl Buhariwala
+// ServiceMe App
+// FileName = DiviDataProvider.cs
 
 namespace StockApp.Provider.DiviData
 {
+    using HtmlAgilityPack;
+    using StockApp.Interfaces;
+    using StockApp.Provider.Helper;
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+
     public class DiviDataProvider : IExDividendDateProvider
     {
         private const string QueryFormat = @"https://dividata.com/stock/{0}";
