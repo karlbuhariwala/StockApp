@@ -15,9 +15,9 @@ namespace StockApp.ServiceLayer
         public StockListGenerator()
         {
             string jsonText = File.ReadAllText(Constants.StockIdentityFileName);
-            this.Stocks = JsonConvert.DeserializeObject<List<StockIdentityContainer>>(jsonText);
+            this.Stocks = JsonConvert.DeserializeObject<List<StockIdentity>>(jsonText);
         }
 
-        public List<StockIdentityContainer> Stocks { get; private set; }
+        public List<StockIdentity> Stocks { get; private set; }
     }
 }

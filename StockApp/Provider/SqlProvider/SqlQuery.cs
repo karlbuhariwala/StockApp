@@ -34,9 +34,44 @@ VALUES
 FROM
     [dbo].[StockInfoRaw]
 WHERE
-    Symbol = 'MSFT'
+    Symbol = @symbol
     AND Deleted = 0
 ORDER BY
     Timestamp desc";
+
+        public const string GetLastStockScore = @"SELECT TOP 1
+    Symbol
+    , Timestamp
+    , Score
+FROM
+    [dbo].[StockInfoScore]
+WHERE
+    Symbol = @symbol
+    AND Deleted = 0
+ORDER BY
+    Timestamp desc";
+
+        public const string GetStockInfoToProcess = @"SELECT
+    Symbol
+    , Timestamp
+    , Price
+    , Volume
+    , ChangePercentage
+FROM
+    [dbo].[StockInfoRaw]
+WHERE
+    Symbol = @symbol
+    AND Timestamp > @dateTime
+    AND Deleted = 0
+ORDER BY
+    Timestamp";
+
+        public const string GetStockRanges = @"SELECT
+    Symbol
+    , PercentageRange
+FROM
+    [dbo].[StockInfoMetadata]
+WHERE
+    Deleted = 0";
     }
 }

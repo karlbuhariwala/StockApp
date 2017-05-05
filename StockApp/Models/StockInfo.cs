@@ -28,6 +28,6 @@ namespace StockApp.Models
 
         public double CurrentVolume { get; set; }
 
-        public DateTime LastUpdate { get; internal set; }
+        public DateTimeOffset LastUpdate { get; internal set; }
     }
 }

@@ -31,9 +31,13 @@ namespace StockApp.Utility.Ninject
             // Service layer
             this.Bind<StockListGenerator>().To<StockListGenerator>().InSingletonScope();
             this.Bind<LiveStockInfoCollector>().To<LiveStockInfoCollector>();
+            this.Bind<StockRangeGenerator>().To<StockRangeGenerator>();
+            this.Bind<StockScoreGenerator>().To<StockScoreGenerator>();
+            this.Bind<TradingHoursChecker>().To<TradingHoursChecker>();
 
             // WorkFlow layer
             this.Bind<StockInformationCollector>().To<StockInformationCollector>();
+            this.Bind<StockInformationAfterHoursProcessor>().To<StockInformationAfterHoursProcessor>();
         }
     }
 }

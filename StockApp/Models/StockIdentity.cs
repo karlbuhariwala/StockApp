@@ -12,23 +12,27 @@ namespace StockApp.Models
     using System.Threading.Tasks;
 
     [DataContract]
-    public class StockIdentityContainer
+    public class StockIdentity
     {
         [DataMember]
         public string Symbol { get; set; }
 
         [DataMember]
         public string Exchange { get; set; }
+
+        public double PercentageRange { get; set; }
+
+        public DateTime Timestamp { get; set; }
     }
 
-    internal class StockIdentityComparer : IEqualityComparer<StockIdentityContainer>
+    internal class StockIdentityComparer : IEqualityComparer<StockIdentity>
     {
-        bool IEqualityComparer<StockIdentityContainer>.Equals(StockIdentityContainer x, StockIdentityContainer y)
+        bool IEqualityComparer<StockIdentity>.Equals(StockIdentity x, StockIdentity y)
         {
             return x.Exchange + x.Symbol == y.Exchange + y.Symbol;
         }
 
-        int IEqualityComparer<StockIdentityContainer>.GetHashCode(StockIdentityContainer obj)
+        int IEqualityComparer<StockIdentity>.GetHashCode(StockIdentity obj)
         {
             return (obj.Exchange + obj.Symbol).GetHashCode();
         }

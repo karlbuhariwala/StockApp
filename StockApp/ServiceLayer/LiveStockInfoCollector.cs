@@ -19,7 +19,7 @@ namespace StockApp.ServiceLayer
 
         private readonly IStorageProvider sqlProvider;
 
-        private readonly List<StockIdentityContainer> stocks;
+        private readonly List<StockIdentity> stocks;
 
         public LiveStockInfoCollector(StockListGenerator stockGenerator, IStorageProvider sqlProvider, IStockProvider stockProvider)
         {

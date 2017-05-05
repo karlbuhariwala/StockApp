@@ -73,7 +73,7 @@ namespace StockApp.Provider.YahooStock
             //quote.Volume = GetDecimal(q.Element("Volume").Value);
             //quote.StockExchange = q.Element("StockExchange").Value;
 
-            quote.LastUpdate = DateTime.Now;
+            quote.LastUpdate = DateTimeOffset.UtcNow;
 
             return quote;
         }

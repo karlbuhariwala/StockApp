@@ -4,35 +4,26 @@
 
 namespace StockApp.ServiceLayer
 {
-    using Interfaces;
-    using Newtonsoft.Json;
-    using StockApp.Models;
-    using StockApp.Utility;
     using System;
-    using System.Collections.Generic;
-    using System.IO;
     using System.Threading.Tasks;
 
     public class StockInformationCollector
     {
         private readonly LiveStockInfoCollector liveStockInfoCollector;
 
-        private readonly StockScoreGenerator stockScoreGenerator;
+        private readonly TradingHoursChecker tradingHoursChecker;
 
-        private TimeZoneInfo est = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-
-        public StockInformationCollector(LiveStockInfoCollector liveStockInfoCollector, StockScoreGenerator stockScoreGenerator)
+        public StockInformationCollector(LiveStockInfoCollector liveStockInfoCollector, TradingHoursChecker tradingHoursChecker)
         {
             this.liveStockInfoCollector = liveStockInfoCollector;
-            this.stockScoreGenerator = stockScoreGenerator;
+            this.tradingHoursChecker = tradingHoursChecker;
         }
 
         public async Task DoWork(bool force = false)
         {
             while (true)
             {
-                var easternNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, est);
-                if ((TimeSpan.FromHours(9) < easternNow.TimeOfDay && easternNow.TimeOfDay < TimeSpan.FromHours(16)) || force)
+                if (this.tradingHoursChecker.IsTradingHours() || force)
                 {
                     Console.WriteLine(DateTime.UtcNow.ToString() + ": Running now...");
                     await this.liveStockInfoCollector.RunPlugin();
@@ -43,8 +34,6 @@ namespace StockApp.ServiceLayer
                 await Task.Delay(5 * 60 * 1000);
                 Console.WriteLine(DateTime.UtcNow.ToString() + ": Awake now...");
             }
-
-            ////await this.stockScoreGenerator.RunPlugin();
         }
     }
 }

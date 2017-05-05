@@ -47,9 +47,9 @@ namespace StockApp.Provider.SqlProvider
                 DataRow row = dataSet.Tables[0].Rows[0];
                 stockInfo.Symbol = row["Symbol"].ToString();
 
-                DateTime dateTimeTemp;
-                DateTime.TryParse(row["Timestamp"].ToString(), out dateTimeTemp);
-                stockInfo.LastUpdate = dateTimeTemp;
+                DateTimeOffset dateTimeOffsetTemp;
+                DateTimeOffset.TryParse(row["Timestamp"].ToString(), out dateTimeOffsetTemp);
+                stockInfo.LastUpdate = dateTimeOffsetTemp;
 
                 decimal decimalTemp;
                 decimal.TryParse(row["Price"].ToString(), out decimalTemp);
@@ -66,7 +66,131 @@ namespace StockApp.Provider.SqlProvider
             return stockInfo;
         }
 
-        private async Task<DataSet> GetData(string query, Dictionary<string, object> parameters)
+        public async Task<StockScore> GetLastStockScore(string symbol)
+        {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("@symbol", symbol);
+
+            DataSet dataSet = await this.GetData(SqlQuery.GetLastStockScore, parameters);
+            StockScore stockScore = new StockScore();
+            if (dataSet.Tables != null && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
+            {
+                DataRow row = dataSet.Tables[0].Rows[0];
+                stockScore.Symbol = row["Symbol"].ToString();
+
+                DateTimeOffset dateTimeOffsetTemp;
+                DateTimeOffset.TryParse(row["Timestamp"].ToString(), out dateTimeOffsetTemp);
+                stockScore.LastUpdate = dateTimeOffsetTemp;
+
+                int intTemp;
+                int.TryParse(row["Score"].ToString(), out intTemp);
+                stockScore.Score = intTemp;
+            }
+
+            return stockScore;
+        }
+
+        public async Task<List<StockInfo>> GetStockPricesToProcess(string symbol, DateTimeOffset dateTime)
+        {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("@symbol", symbol);
+            parameters.Add("@dateTime", dateTime);
+
+            DataSet dataSet = await this.GetData(SqlQuery.GetStockInfoToProcess, parameters);
+            List<StockInfo> stockInfoList = new List<StockInfo>();
+            if (dataSet.Tables != null && dataSet.Tables[0].Rows != null)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    StockInfo stockInfo = new StockInfo();
+                    stockInfo.Symbol = row["Symbol"].ToString();
+
+                    DateTimeOffset dateTimeOffsetTemp;
+                    DateTimeOffset.TryParse(row["Timestamp"].ToString(), out dateTimeOffsetTemp);
+                    stockInfo.LastUpdate = dateTimeOffsetTemp;
+
+                    decimal decimalTemp;
+                    decimal.TryParse(row["Price"].ToString(), out decimalTemp);
+                    stockInfo.LastTradePrice = decimalTemp;
+
+                    double doubleTemp;
+                    double.TryParse(row["Volume"].ToString(), out doubleTemp);
+                    stockInfo.CurrentVolume = doubleTemp;
+
+                    double.TryParse(row["ChangePercentage"].ToString(), out doubleTemp);
+                    stockInfo.ChangePercentage = doubleTemp;
+
+                    stockInfoList.Add(stockInfo);
+                }
+            }
+
+            return stockInfoList;
+        }
+
+        public async Task<Dictionary<string, double>> GetStockRanges()
+        {
+            DataSet dataSet = await this.GetData(SqlQuery.GetStockRanges);
+            Dictionary<string, double> stockIdentityRangeMap = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            if (dataSet.Tables != null && dataSet.Tables[0].Rows != null)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    string symbol = row["Symbol"].ToString();
+
+                    double percentageRange;
+                    double.TryParse(row["PercentageRange"].ToString(), out percentageRange);
+
+                    stockIdentityRangeMap.Add(symbol, percentageRange);
+                }
+            }
+
+            return stockIdentityRangeMap;
+        }
+
+        public async Task BulkInsertScores(List<StockScore> stockScores)
+        {
+            DataTable table = new DataTable("StockInfoScore");
+            table.Columns.Add("Symbol");
+            table.Columns.Add("Timestamp", typeof(DateTime));
+            table.Columns.Add("Score", typeof(int));
+            table.Columns.Add("Deleted", typeof(bool));
+
+            foreach (var item in stockScores)
+            {
+                DataRow row = table.NewRow();
+                row["Symbol"] = item.Symbol;
+                row["Timestamp"] = item.LastUpdate;
+                row["Score"] = item.Score;
+                row["Deleted"] = false;
+
+                table.Rows.Add(row);
+            }
+
+            await this.BulkInsert(table);
+        }
+
+        private async Task BulkInsert(DataTable table)
+        {
+            SqlConnection sqlconnection = new SqlConnection(this.connectionString);
+            SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(sqlconnection);
+            foreach (DataColumn column in table.Columns)
+            {
+                sqlBulkCopy.ColumnMappings.Add(column.ColumnName, column.ColumnName);
+            }
+
+            sqlBulkCopy.DestinationTableName = table.TableName;
+            try
+            {
+                sqlconnection.Open();
+                await sqlBulkCopy.WriteToServerAsync(table);
+                sqlconnection.Close();
+            }
+            catch
+            {
+            }
+        }
+
+        private async Task<DataSet> GetData(string query, Dictionary<string, object> parameters = null)
         {
             SqlConnection sqlconnection = new SqlConnection(this.connectionString);
             SqlDataAdapter sqlDataAdapter = new SqlDataAdapter();
@@ -93,7 +217,7 @@ namespace StockApp.Provider.SqlProvider
             return await Task.FromResult<DataSet>(dataSet);
         }
 
-        private async Task RunQuery(string query, Dictionary<string, object> parameters)
+        private async Task RunQuery(string query, Dictionary<string, object> parameters = null)
         {
             SqlConnection sqlconnection = new SqlConnection(this.connectionString);
             try

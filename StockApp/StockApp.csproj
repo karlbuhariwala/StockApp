@@ -66,7 +66,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\StockIdentityContainer.cs" />
+    <Compile Include="Models\StockIdentity.cs" />
+    <Compile Include="Models\StockScore.cs" />
     <Compile Include="Models\StockInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -88,9 +89,12 @@
     <Compile Include="Provider\YahooEarnings\YahooEarningsProvider.cs" />
     <Compile Include="Provider\YahooStock\IYahooProvider.cs" />
     <Compile Include="Provider\YahooStock\YahooProvider.cs" />
+    <Compile Include="ServiceLayer\TradingHoursChecker.cs" />
+    <Compile Include="ServiceLayer\StockRangeGenerator.cs" />
     <Compile Include="ServiceLayer\LiveStockInfoCollector.cs" />
     <Compile Include="ServiceLayer\StockListGenerator.cs" />
     <Compile Include="ServiceLayer\StockScoreGenerator.cs" />
+    <Compile Include="Workflow\StockInformationAfterHoursProcessor.cs" />
     <Compile Include="Workflow\StockInformationCollector.cs" />
     <Compile Include="Utility\Constants.cs" />
     <Compile Include="Utility\Ninject\Dependencies.cs" />
@@ -103,6 +107,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Provider\SqlProvider\SqlScripts\Create-StockInfoMetadata.sql" />
+    <Content Include="Provider\SqlProvider\SqlScripts\Create-StockInfoScore.sql" />
     <Content Include="Provider\SqlProvider\SqlScripts\Create-StockInfoRaw.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

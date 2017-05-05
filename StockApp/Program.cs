@@ -26,7 +26,7 @@ namespace StockApp
         static void Main(string[] args)
         {
             kernel = new StandardKernel(new StockApp.Utility.Ninject.Dependencies());
-
+            bool force = false;
             if (args.Any())
             {
                 switch (args[0])
@@ -38,9 +38,14 @@ namespace StockApp
                         Program.RunAnalysis();
                         break;
                     case "CollectInfo":
-                        bool force = args.FirstOrDefault(x => x.Equals("force", StringComparison.OrdinalIgnoreCase)) != null;
+                        force = args.FirstOrDefault(x => x.Equals("force", StringComparison.OrdinalIgnoreCase)) != null;
                         StockInformationCollector collectStockInfo = kernel.Get<StockInformationCollector>();
                         collectStockInfo.DoWork(force).Wait();
+                        break;
+                    case "GenerateScore":
+                        force = args.FirstOrDefault(x => x.Equals("force", StringComparison.OrdinalIgnoreCase)) != null;
+                        StockInformationAfterHoursProcessor stockInformationAfterHoursProcessor = kernel.Get<StockInformationAfterHoursProcessor>();
+                        stockInformationAfterHoursProcessor.DoWork(force).Wait();
                         break;
                     case "/?":
                     case "-?":
@@ -59,7 +64,7 @@ namespace StockApp
         private static void RunAnalysis()
         {
             string jsonText = File.ReadAllText(Constants.StockIdentityFileName);
-            var listOfStock = JsonConvert.DeserializeObject<List<StockIdentityContainer>>(jsonText);
+            var listOfStock = JsonConvert.DeserializeObject<List<StockIdentity>>(jsonText);
 
             StringBuilder sb = new StringBuilder();
             sb.Append("Name,LastTradePrice,ChangePercentage,CurrentVolume,ExDividendDate,DividendYield,EarningDate,LastUpdated,Comment" + Environment.NewLine);
@@ -90,7 +95,7 @@ namespace StockApp
             File.AppendAllText(Constants.StockAnalysisFileName, sb.ToString());
         }
 
-        private static string GetStockInfo(StockIdentityContainer stock)
+        private static string GetStockInfo(StockIdentity stock)
         {
             //string stockSymbol = "MSFT";
             //string exchange = "NSE";
@@ -165,14 +170,14 @@ namespace StockApp
                 throw new ApplicationException("No exchange provided");
             }
 
-            StockIdentityContainer container = new StockIdentityContainer()
+            StockIdentity container = new StockIdentity()
             {
                 Symbol = symbol,
                 Exchange = exchange,
             };
 
             string jsonText = File.ReadAllText(Constants.StockIdentityFileName);
-            var listOfStock = JsonConvert.DeserializeObject<List<StockIdentityContainer>>(jsonText);
+            var listOfStock = JsonConvert.DeserializeObject<List<StockIdentity>>(jsonText);
             if (!listOfStock.Contains(container, new StockIdentityComparer()))
             {
                 listOfStock.Add(container);

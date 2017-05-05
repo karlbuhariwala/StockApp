@@ -24,7 +24,7 @@ namespace StockApp.Provider.GoogleStock
             quote.LastTradePrice = decimal.Parse(stock.CurrentPrice);
             quote.ChangePercentage = double.Parse(stock.ChangePercentage);
 
-            quote.LastUpdate = DateTime.Now;
+            quote.LastUpdate = DateTimeOffset.UtcNow;
             return quote;
         }
     }
