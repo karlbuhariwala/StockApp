@@ -15,7 +15,9 @@ namespace StockApp.ServiceLayer
             var easternNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, est);
 
             return (TimeSpan.FromHours(9).Add(TimeSpan.FromMinutes(30)) < easternNow.TimeOfDay
-                && easternNow.TimeOfDay < TimeSpan.FromHours(16));
+                && easternNow.TimeOfDay < TimeSpan.FromHours(16) 
+                && easternNow.DayOfWeek != DayOfWeek.Saturday 
+                && easternNow.DayOfWeek != DayOfWeek.Sunday);
         }
     }
 }

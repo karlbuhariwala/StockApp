@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\StockIdentity.cs" />
+    <Compile Include="Models\StockMetadataInfo.cs" />
     <Compile Include="Models\StockScore.cs" />
     <Compile Include="Models\StockInfo.cs" />
     <Compile Include="Program.cs" />

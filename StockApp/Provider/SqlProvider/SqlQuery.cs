@@ -69,9 +69,41 @@ ORDER BY
         public const string GetStockRanges = @"SELECT
     Symbol
     , PercentageRange
+    , DataPointCount
+    , Timestamp
 FROM
     [dbo].[StockInfoMetadata]
 WHERE
     Deleted = 0";
+
+        public const string GetRangesFromRawData = @"SELECT 
+	CAST(Timestamp as date) AS Timestamp
+	, Min(ChangePercentage) AS Min
+	, Max(ChangePercentage) AS Max
+	, Max(ChangePercentage) - Min(ChangePercentage) AS Range
+FROM 
+	StockInfoRaw
+WHERE
+    Symbol = @symbol
+    AND Timestamp > @dateTime
+	AND Deleted = 0
+GROUP BY
+	CAST(Timestamp as date)
+HAVING 
+	Min(ChangePercentage) != Max(ChangePercentage)
+ORDER BY
+	CAST(Timestamp as date)";
+
+        public const string UpdateInsertRangeData = @"UPDATE StockInfoMetadata
+SET Symbol = @symbol
+, Timestamp = @timestamp
+, PercentageRange = @range
+, DataPointCount = @count
+, Deleted = 0
+WHERE
+	Symbol = @symbol
+IF @@ROWCOUNT=0
+    INSERT INTO StockInfoMetadata (Symbol, Timestamp, PercentageRange, DataPointCount, Deleted)
+	VALUES (@symbol, @timestamp, @range, @count, 0)";
     }
 }

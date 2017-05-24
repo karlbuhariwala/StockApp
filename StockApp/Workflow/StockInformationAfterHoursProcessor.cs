@@ -13,17 +13,20 @@ namespace StockApp.ServiceLayer
 
         private readonly TradingHoursChecker tradingHoursChecker;
 
-        public StockInformationAfterHoursProcessor(StockScoreGenerator stockScoreGenerator, TradingHoursChecker tradingHoursChecker)
+        private readonly StockRangeGenerator stockRangeGenerator;
+
+        public StockInformationAfterHoursProcessor(StockScoreGenerator stockScoreGenerator, TradingHoursChecker tradingHoursChecker, StockRangeGenerator stockRangeGenerator)
         {
             this.stockScoreGenerator = stockScoreGenerator;
             this.tradingHoursChecker = tradingHoursChecker;
+            this.stockRangeGenerator = stockRangeGenerator;
         }
 
         public async Task DoWork(bool force = false)
         {
             if (!this.tradingHoursChecker.IsTradingHours() || force)
             {
-                await this.stockScoreGenerator.RunPlugin();
+                await this.stockRangeGenerator.UpdateRangesInfo();
             }
         }
     }

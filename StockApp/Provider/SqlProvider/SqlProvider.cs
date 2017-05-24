@@ -127,10 +127,10 @@ namespace StockApp.Provider.SqlProvider
             return stockInfoList;
         }
 
-        public async Task<Dictionary<string, double>> GetStockRanges()
+        public async Task<Dictionary<string, StockMetadataInfo>> GetStockRanges()
         {
             DataSet dataSet = await this.GetData(SqlQuery.GetStockRanges);
-            Dictionary<string, double> stockIdentityRangeMap = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, StockMetadataInfo> stockIdentityRangeMap = new Dictionary<string, StockMetadataInfo>(StringComparer.OrdinalIgnoreCase);
             if (dataSet.Tables != null && dataSet.Tables[0].Rows != null)
             {
                 foreach (DataRow row in dataSet.Tables[0].Rows)
@@ -140,7 +140,13 @@ namespace StockApp.Provider.SqlProvider
                     double percentageRange;
                     double.TryParse(row["PercentageRange"].ToString(), out percentageRange);
 
-                    stockIdentityRangeMap.Add(symbol, percentageRange);
+                    int dataPointCount;
+                    int.TryParse(row["DataPointCount"].ToString(), out dataPointCount);
+
+                    DateTimeOffset lastDataPointDateTime;
+                    DateTimeOffset.TryParse(row["Timestamp"].ToString(), out lastDataPointDateTime);
+
+                    stockIdentityRangeMap.Add(symbol, new StockMetadataInfo() { Symbol = symbol, PercentageChangeRange = percentageRange, DataPointCount = dataPointCount, LastProcessedDateTime = lastDataPointDateTime });
                 }
             }
 
@@ -167,6 +173,49 @@ namespace StockApp.Provider.SqlProvider
             }
 
             await this.BulkInsert(table);
+        }
+
+        public async Task<Tuple<List<double>, DateTime>> GetRangesSinceLastProcessedDay(string symbol, DateTime dateTime)
+        {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("@symbol", symbol);
+            parameters.Add("@dateTime", dateTime);
+
+            List<double> ranges = new List<double>();
+            DateTime lastProcessedDateTime;
+            DataSet dataSet = await this.GetData(SqlQuery.GetRangesFromRawData, parameters);
+            if (dataSet.Tables != null && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    double doubleTemp;
+                    double.TryParse(row["Range"].ToString(), out doubleTemp);
+
+                    ranges.Add(doubleTemp);
+                }
+
+                DateTime dateTimeTemp;
+                string lastDateTime = dataSet.Tables[0].Rows[dataSet.Tables[0].Rows.Count - 1]["Timestamp"].ToString();
+                DateTime.TryParse(lastDateTime, out dateTimeTemp);
+                lastProcessedDateTime = dateTimeTemp;
+            }
+            else
+            {
+                lastProcessedDateTime = dateTime;
+            }
+
+            return new Tuple<List<double>, DateTime>(ranges, lastProcessedDateTime);
+        }
+
+        public async Task SaveRange(string symbol, double newRange, int count, DateTime lastProcessedDateTime)
+        {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("@symbol", symbol);
+            parameters.Add("@timestamp", lastProcessedDateTime);
+            parameters.Add("@range", newRange);
+            parameters.Add("@count", count);
+
+            await this.RunQuery(SqlQuery.UpdateInsertRangeData, parameters);
         }
 
         private async Task BulkInsert(DataTable table)

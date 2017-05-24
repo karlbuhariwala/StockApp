@@ -18,7 +18,7 @@ ON [dbo].[StockInfoRaw] ([Symbol]);
 
 --UPDATE [dbo].[StockInfoRaw]
 SET Deleted = 1
-WHERE Id = 5457
+WHERE ChangePercentage = 0
 
 SELECT 
 	symbol

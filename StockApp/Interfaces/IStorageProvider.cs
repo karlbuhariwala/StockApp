@@ -19,8 +19,12 @@ namespace StockApp.Interfaces
 
         Task<List<StockInfo>> GetStockPricesToProcess(string symbol, DateTimeOffset dateTime);
 
-        Task<Dictionary<string, double>> GetStockRanges();
+        Task<Dictionary<string, StockMetadataInfo>> GetStockRanges();
 
         Task BulkInsertScores(List<StockScore> stockScores);
+
+        Task<Tuple<List<double>, DateTime>> GetRangesSinceLastProcessedDay(string symbol, DateTime dateTime);
+
+        Task SaveRange(string symbol, double newRange, int count, DateTime lastProcessedDateTime);
     }
 }
