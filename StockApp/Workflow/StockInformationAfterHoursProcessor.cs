@@ -9,15 +9,15 @@ namespace StockApp.ServiceLayer
 
     public class StockInformationAfterHoursProcessor
     {
-        private readonly StockScoreGenerator stockScoreGenerator;
+        private readonly VolumeSpikeAnalyzer volumeSpikeAnalyzer;
 
         private readonly TradingHoursChecker tradingHoursChecker;
 
         private readonly StockRangeGenerator stockRangeGenerator;
 
-        public StockInformationAfterHoursProcessor(StockScoreGenerator stockScoreGenerator, TradingHoursChecker tradingHoursChecker, StockRangeGenerator stockRangeGenerator)
+        public StockInformationAfterHoursProcessor(VolumeSpikeAnalyzer volumeSpikeAnalyzer, TradingHoursChecker tradingHoursChecker, StockRangeGenerator stockRangeGenerator)
         {
-            this.stockScoreGenerator = stockScoreGenerator;
+            this.volumeSpikeAnalyzer = volumeSpikeAnalyzer;
             this.tradingHoursChecker = tradingHoursChecker;
             this.stockRangeGenerator = stockRangeGenerator;
         }
@@ -26,7 +26,8 @@ namespace StockApp.ServiceLayer
         {
             if (!this.tradingHoursChecker.IsTradingHours() || force)
             {
-                await this.stockRangeGenerator.UpdateRangesInfo();
+                //await this.stockRangeGenerator.UpdateRangesInfo();
+                await this.volumeSpikeAnalyzer.RunPlugin();
             }
         }
     }

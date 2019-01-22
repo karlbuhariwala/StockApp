@@ -157,7 +157,7 @@ namespace StockApp.Provider.SqlProvider
         {
             DataTable table = new DataTable("StockInfoScore");
             table.Columns.Add("Symbol");
-            table.Columns.Add("Timestamp", typeof(DateTime));
+            table.Columns.Add("Timestamp", typeof(DateTimeOffset));
             table.Columns.Add("Score", typeof(int));
             table.Columns.Add("Deleted", typeof(bool));
 

@@ -8,25 +8,41 @@ namespace StockApp.Models
 
     public class StockInfo
     {
+        #region Basic
         public string Exchange { get; set; }
 
         public string Symbol { get; set; }
+        #endregion
 
-        public decimal? Ask { get; set; }
-
-        public decimal? Bid { get; set; }
-
+        #region Daily metrics
         public decimal? LastTradePrice { get; set; }
 
         public double ChangePercentage { get; set; }
 
+        public double CurrentVolume { get; set; }
+        #endregion
+
+        #region Aggregated metrics
         public decimal? DividendYield { get; set; }
 
+        public double AvTotalVolume { get; set; }
+
+        public decimal? Week52High { get; set; }
+
+        public decimal? Week52Low { get; set; }
+        #endregion
+
+        #region Events
         public DateTime ExDividendDate { get; set; }
 
         public DateTime EarningCallDate { get; set; }
+        #endregion
 
-        public double CurrentVolume { get; set; }
+        #region Advanced info
+        public decimal? Ask { get; set; }
+
+        public decimal? Bid { get; set; }
+        #endregion
 
         public DateTimeOffset LastUpdate { get; internal set; }
     }

@@ -47,6 +47,10 @@ namespace StockApp
                         StockInformationAfterHoursProcessor stockInformationAfterHoursProcessor = kernel.Get<StockInformationAfterHoursProcessor>();
                         stockInformationAfterHoursProcessor.DoWork(force).Wait();
                         break;
+                    case "GenerateSnapshot":
+                        StockSnapshotCollector stockSnapshotCollector = kernel.Get<StockSnapshotCollector>();
+                        stockSnapshotCollector.DoWork(force).Wait();
+                        break;
                     case "/?":
                     case "-?":
                         Console.WriteLine("Usage is StockApp.exe CommandName");

@@ -78,6 +78,7 @@
     <Compile Include="Provider\GoogleStock\DataModel\GoogleStock.cs" />
     <Compile Include="Provider\GoogleStock\IGoogleProvider.cs" />
     <Compile Include="Provider\Helper\QueryHelper.cs" />
+    <Compile Include="Provider\IExTrading\IExTradingProvider.cs" />
     <Compile Include="Provider\NasdaqDividend\NasdaqDividendDateProvider.cs" />
     <Compile Include="Interfaces\IExDividendDateProvider.cs" />
     <Compile Include="Provider\DiviData\DiviDataProvider.cs" />
@@ -90,12 +91,16 @@
     <Compile Include="Provider\YahooEarnings\YahooEarningsProvider.cs" />
     <Compile Include="Provider\YahooStock\IYahooProvider.cs" />
     <Compile Include="Provider\YahooStock\YahooProvider.cs" />
+    <Compile Include="ServiceLayer\Analysis\VolumeSpikeAnalyzer.cs" />
+    <Compile Include="ServiceLayer\LiveStockInfoCollector.cs" />
+    <Compile Include="ServiceLayer\StockShapshotCollector.cs" />
     <Compile Include="ServiceLayer\TradingHoursChecker.cs" />
     <Compile Include="ServiceLayer\StockRangeGenerator.cs" />
-    <Compile Include="ServiceLayer\LiveStockInfoCollector.cs" />
+    <Compile Include="ServiceLayer\Libraries\LinearRegression.cs" />
     <Compile Include="ServiceLayer\StockListGenerator.cs" />
     <Compile Include="ServiceLayer\StockScoreGenerator.cs" />
     <Compile Include="Workflow\StockInformationAfterHoursProcessor.cs" />
+    <Compile Include="Workflow\StockSnapshotCollector.cs" />
     <Compile Include="Workflow\StockInformationCollector.cs" />
     <Compile Include="Utility\Constants.cs" />
     <Compile Include="Utility\Ninject\Dependencies.cs" />

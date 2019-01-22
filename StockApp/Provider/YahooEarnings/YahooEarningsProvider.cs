@@ -13,40 +13,37 @@ namespace StockApp.Provider.YahooEarnings
 
     public class YahooEarningsProvider : IEarningsDateProvider
     {
-        private const string QueryFormat = @"https://biz.yahoo.com/research/earncal/{0}/{1}.html";
+        private const string QueryFormat = @"https://finance.yahoo.com/calendar/earnings?symbol={0}";
 
         async Task<DateTime> IEarningsDateProvider.GetEarningsCallDate(string symbol)
         {
-            var rawData = await Helper.QueryHelper.GetQuery<string>(string.Format(YahooEarningsProvider.QueryFormat, symbol.Substring(0, 1), symbol));
+            var rawData = await Helper.QueryHelper.GetQuery<string>(string.Format(YahooEarningsProvider.QueryFormat, symbol));
 
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(rawData);
-            var nodes = document.DocumentNode.SelectNodes(string.Format("//a[@href=\"http://finance.yahoo.com/q?s={0}\"]", symbol.ToLower()));
+            var nodes = document.DocumentNode.SelectNodes("//div[@id=\"fin-cal-table\"]");
             if (nodes.Count != 1)
             {
                 throw new ApplicationException("There are not exactly 1 node");
             }
 
-            var node = nodes.FirstOrDefault().ParentNode.NextSibling.NextSibling.NextSibling.FirstChild;
-            Uri earningDateUri = new Uri(node.Attributes["href"].Value);
-            var queryParameters = HttpUtility.ParseQueryString(earningDateUri.Query);
-            string earningDate = queryParameters["ST"];
-            DateTime dateToReturn;
-            if (!DateTime.TryParseExact(earningDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out dateToReturn))
+            var tableNode = nodes.FirstOrDefault().SelectNodes("//tbody");
+            var row = tableNode.FirstOrDefault().FirstChild;
+            DateTime dateToReturn = DateTime.Now.AddYears(2);
+            while (row != null)
             {
-                throw new ApplicationException("Cannot parse date");
-            }
+                var dateNode = row.FirstChild.NextSibling.NextSibling.NextSibling;
+                var earningDate = dateNode.FirstChild.InnerHtml;
+                DateTime tempDate;
+                if (DateTime.TryParseExact(earningDate, "MMM dd, yyyy, h tt", null, System.Globalization.DateTimeStyles.None, out tempDate))
+                {
+                    if (tempDate < dateToReturn && tempDate > DateTime.Now)
+                    {
+                        dateToReturn = tempDate;
+                    }
+                }
 
-            node = nodes.FirstOrDefault().ParentNode.NextSibling.NextSibling.FirstChild;
-            string time = node.InnerHtml;
-
-            if (time == "After Market Close")
-            {
-                dateToReturn = dateToReturn.AddHours(18);
-            }
-            else if (time == "Before Market Open")
-            {
-                dateToReturn = dateToReturn.AddHours(8);
+                row = row.NextSibling;
             }
 
             return dateToReturn;

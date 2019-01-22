@@ -8,6 +8,7 @@ namespace StockApp.Utility.Ninject
     using Provider.DiviData;
     using Provider.GoogleFinancePage;
     using Provider.GoogleStock;
+    using Provider.IExTradingProvider;
     using Provider.YahooEarnings;
     using Provider.YahooStock;
     using StockApp.Interfaces;
@@ -21,7 +22,7 @@ namespace StockApp.Utility.Ninject
         {
             // Providers
             this.Bind<IStorageProvider>().To<SqlProvider>();
-            this.Bind<IStockProvider>().To<StockProvider>();
+            this.Bind<IStockProvider>().To<IExTradingProvider>();
             this.Bind<IGoogleProvider>().To<GoogleProvider>();
             this.Bind<ICurrentVolumeProvider>().To<GoogleFinancePageProvider>();
             this.Bind<IYahooProvider>().To<YahooProvider>();
